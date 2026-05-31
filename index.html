@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Тебе письмо ❤</title>
+<meta property="og:title" content="Тебе письмо ❤" />
+<meta property="og:description" content="Нажми, чтобы открыть конверт ✨" />
+<meta property="og:image" content="card/preview.png" />
+<meta property="og:type" content="website" />
+<script>
+  // переносим параметр ?name= на страницу открытки
+  const qs = location.search || '';
+  location.replace('card/angelina_heart_card.html' + qs);
+</script>
+<meta http-equiv="refresh" content="0; url=card/angelina_heart_card.html" />
+</head>
+<body>
+  <p>Открываю открытку… <a href="card/angelina_heart_card.html">нажми сюда</a>, если не открылось.</p>
+</body>
+</html>

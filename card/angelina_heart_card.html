@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Открытка с любовью ❤</title>
+<meta property="og:title" content="Тебе письмо ❤" />
+<meta property="og:description" content="Нажми, чтобы открыть конверт ✨" />
+<meta property="og:image" content="preview.png" />
+<meta property="og:type" content="website" />
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: linear-gradient(160deg, #ffd9e3 0%, #ffc1d6 45%, #ff9ec0 100%);
+    display: flex; align-items: center; justify-content: center;
+    min-height: 100vh; overflow: hidden; position: relative;
+    padding: 20px;
+  }
+  canvas#confetti { position: fixed; inset: 0; pointer-events: none; z-index: 50; }
+
+  /* floating hearts background */
+  .bg-heart { position: fixed; font-size: 22px; opacity: .5; animation: floatUp linear infinite; z-index: 0; }
+  @keyframes floatUp {
+    0% { transform: translateY(110vh) scale(.6); opacity: 0; }
+    10% { opacity: .6; }
+    90% { opacity: .6; }
+    100% { transform: translateY(-15vh) scale(1.1); opacity: 0; }
+  }
+
+  /* ENVELOPE */
+  .stage { position: relative; width: 340px; height: 240px; z-index: 5; }
+  .hint {
+    position: absolute; top: -54px; left: 0; right: 0; text-align: center;
+    color: #b03060; font-weight: 600; font-size: 16px;
+    animation: bob 1.6s ease-in-out infinite;
+  }
+  @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+
+  .envelope { position: absolute; inset: 0; cursor: pointer; }
+  .env-body {
+    position: absolute; inset: 0; top: 40px;
+    background: linear-gradient(135deg, #fff1f5, #ffe1ec);
+    border-radius: 10px;
+    box-shadow: 0 14px 30px rgba(176,48,96,.35);
+  }
+  .env-front {
+    position: absolute; left: 0; right: 0; bottom: 0; top: 40px;
+    background: linear-gradient(135deg, #ffd0e0, #ffb8d2);
+    border-radius: 10px;
+    clip-path: polygon(0 100%, 0 18%, 50% 70%, 100% 18%, 100% 100%);
+    z-index: 4;
+  }
+  .flap {
+    position: absolute; left: 0; right: 0; top: 40px; height: 110px;
+    background: linear-gradient(135deg, #ff9ec0, #ff7fae);
+    clip-path: polygon(0 0, 100% 0, 50% 95%);
+    transform-origin: top; transition: transform .8s ease;
+    z-index: 6;
+  }
+  .seal {
+    position: absolute; top: 78px; left: 50%; transform: translate(-50%,-50%);
+    width: 46px; height: 46px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #ff5e87, #d61f4e);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 22px; z-index: 8;
+    box-shadow: 0 4px 10px rgba(0,0,0,.25);
+    transition: opacity .3s;
+  }
+  .letter {
+    position: absolute; left: 14px; right: 14px; top: 46px;
+    background: #fffdfa; border-radius: 8px; padding: 22px 18px;
+    box-shadow: 0 6px 18px rgba(0,0,0,.12);
+    transform: translateY(0); opacity: 0; pointer-events: none;
+    transition: transform 1s ease .25s, opacity .4s ease .3s;
+    z-index: 3; text-align: center;
+  }
+  .letter h1 { font-size: 22px; color: #d61f4e; margin-bottom: 8px; }
+  .letter p { color: #5a4a50; font-size: 15px; line-height: 1.55; }
+  .letter .sticker { width: 92px; height: auto; margin: 12px auto 4px; display: block; }
+
+  /* OPEN STATE */
+  .open .flap { transform: rotateX(180deg); z-index: 2; }
+  .open .seal { opacity: 0; }
+  .open .letter { transform: translateY(-205px); opacity: 1; pointer-events: auto; z-index: 7; }
+
+  .card-actions { margin-top: 14px; }
+  .btn {
+    border: none; cursor: pointer; font-size: 15px; font-weight: 600;
+    color: #fff; background: linear-gradient(135deg,#ff6f9c,#d61f4e);
+    padding: 10px 18px; border-radius: 30px;
+    box-shadow: 0 6px 14px rgba(214,31,78,.4); transition: transform .15s;
+  }
+  .btn:active { transform: scale(.94); }
+
+  .signature { position: fixed; bottom: 14px; width: 100%; text-align: center; color: #b03060; font-size: 13px; opacity: .8; z-index: 5; }
+</style>
+</head>
+<body>
+<canvas id="confetti"></canvas>
+
+<div class="stage">
+  <div class="hint" id="hint">нажми на конверт 👇</div>
+  <div class="envelope" id="envelope">
+    <div class="env-body"></div>
+    <div class="letter" id="letter">
+      <h1 id="greeting">Для Ангелины ❤</h1>
+      <p>Ты делаешь этот мир теплее одним своим существованием. Пусть сегодня и всегда тебя окружает только любовь, улыбки и капельку волшебства ✨</p>
+      <img class="sticker" src="sticker.webp" alt="мопсы" onerror="this.style.display='none'" />
+      <div class="card-actions">
+        <button class="btn" id="surprise">Сюрприз 🎉</button>
+      </div>
+    </div>
+    <div class="env-front"></div>
+    <div class="flap"></div>
+    <div class="seal">❤</div>
+  </div>
+</div>
+
+<div class="signature">сделано с любовью ❤️🐶</div>
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+<script>
+  // --- имя через ?name= (родительный падеж) ---
+  const params = new URLSearchParams(location.search);
+  const name = params.get('name');
+  if (name) {
+    document.getElementById('greeting').textContent = 'Для ' + name + ' ❤';
+    document.title = 'Открытка для ' + name + ' ❤';
+  }
+
+  // --- фоновые сердечки ---
+  const heartChars = ['❤️','💕','💖','💗','💞'];
+  for (let i = 0; i < 14; i++) {
+    const h = document.createElement('div');
+    h.className = 'bg-heart';
+    h.textContent = heartChars[Math.floor(Math.random()*heartChars.length)];
+    h.style.left = Math.random()*100 + 'vw';
+    h.style.animationDuration = (6 + Math.random()*8) + 's';
+    h.style.animationDelay = (-Math.random()*10) + 's';
+    h.style.fontSize = (16 + Math.random()*20) + 'px';
+    document.body.appendChild(h);
+  }
+
+  // --- конфетти с резервным салютом ---
+  function blast() {
+    if (window.confetti) {
+      confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 }, colors: ['#ff6f9c','#d61f4e','#ffd9e3','#ff9ec0','#fff'] });
+      setTimeout(() => confetti({ particleCount: 80, angle: 60, spread: 70, origin: { x: 0 } }), 200);
+      setTimeout(() => confetti({ particleCount: 80, angle: 120, spread: 70, origin: { x: 1 } }), 350);
+    } else {
+      heartFallback();
+    }
+  }
+  function heartFallback() {
+    for (let i = 0; i < 30; i++) {
+      const h = document.createElement('div');
+      h.textContent = '❤️';
+      h.style.cssText = 'position:fixed;z-index:60;left:'+ (Math.random()*100) +'vw;top:-30px;font-size:'+ (16+Math.random()*22) +'px;pointer-events:none;transition:transform 2.5s ease-in,opacity 2.5s;';
+      document.body.appendChild(h);
+      requestAnimationFrame(() => {
+        h.style.transform = 'translateY(110vh) rotate('+ (Math.random()*360) +'deg)';
+        h.style.opacity = '0';
+      });
+      setTimeout(() => h.remove(), 2600);
+    }
+  }
+
+  // --- открытие конверта ---
+  const env = document.getElementById('envelope');
+  const hint = document.getElementById('hint');
+  let opened = false;
+  env.addEventListener('click', () => {
+    if (opened) return;
+    opened = true;
+    env.classList.add('open');
+    hint.style.display = 'none';
+    setTimeout(blast, 600);
+  });
+
+  document.getElementById('surprise').addEventListener('click', (e) => {
+    e.stopPropagation();
+    blast();
+  });
+</script>
+</body>
+</html>
